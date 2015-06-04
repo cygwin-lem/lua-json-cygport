@@ -1,7 +1,7 @@
 inherit lua
 
 NAME="lua-json"
-VERSION=1.3.2
+VERSION=1.3.3
 RELEASE=1
 CATEGORY="Lua"
 SUMMARY="Lua JSON parser/encoder extension"
@@ -17,6 +17,6 @@ src_compile() { :; }
 
 src_install() {
 	cd ${S}
-	cyginstall PREFIX=/usr
+	cyginstall INSTALL_CMOD=${LUA_LIBDIR} INSTALL_LMOD=${LUA_SCRIPTDIR}
 	dodoc docs/*.txt
 }
