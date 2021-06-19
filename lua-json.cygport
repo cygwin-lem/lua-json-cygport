@@ -1,5 +1,3 @@
-inherit lua
-
 NAME="lua-json"
 VERSION=1.3.4
 RELEASE=1
@@ -26,16 +24,77 @@ SRC_DIR="${GIT_BASENAME}-${REV_HASH#v}"
 
 ARCH="noarch"
 
-BUILD_REQUIRES="\
-  lua\
-  liblua-devel\
-  lua-lpeg\
+################################
+LUA_VERSIONS="5.3:5.4"
+LUA_PKG_NAME="${NAME#lua-}"
+source lua.experiment
+
+################################
+## Patch files
+################################
+# Patch filenames are in a default style of 'git format-patch'
+PATCH_URI=$(\
+  find -maxdepth 1 -type f -name '[0-9][0-9][0-9][0-9]-*.patch' \
+  | sort \
+)
+# Additional patches, if any
+PATCH_URI+="
 "
 
-src_compile() { :; }
+################################
+## Requirements for building
+################################
+BUILD_REQUIRES="\
+  lua53-devel\
+  lua53-lpeg\
+  lua53-lfs\
+  lua53-lunitx\
+\
+  lua54-devel\
+  lua54-lpeg\
+  lua54-lfs\
+  lua54-lunitx\
+"
+# TEST_REQUIRES="\
+#   lua53-lpeg lua53-lunitx lua53-lfs\
+#   lua54-lpeg lua54-lunitx lua54-lfs\
+# "
 
-src_install() {
-	cd ${S}
-	cyginstall INSTALL_CMOD=${LUA_LIBDIR} INSTALL_LMOD=${LUA_SCRIPTDIR}
-	dodoc docs/*.txt
+################################
+ABI=0
+
+
+################################
+_CYGPORT_RESTRICT_postinst_doc_=1
+
+set_packages_lua_versions ${LUA_VERSIONS} ${LUA_PKG_NAME}
+
+################################
+src_compile_lua() {
+  mkdir -p ${B}/${LUA_VERSION}
+  cd  ${B}/${LUA_VERSION}
+
+  lndirs ${S} .
 }
+
+################################
+src_install_lua() {
+  cd ${B}/${LUA_VERSION}
+
+  __doinsdir lua ${LUA_SCRIPTDIR}
+
+  dodoc LICENSE* README* docs/
+}
+
+################################
+src_test_lua() {
+  cd ${B}/${LUA_VERSION}
+
+  make check \
+    LUA_BIN="${LUA}" \
+    LUNIT_BIN="lunit-${LUA_VERSION}" \
+    VERSION="${VERSION}" \
+  ;
+}
+
+################################
