@@ -1,6 +1,6 @@
 NAME="lua-json"
 VERSION=1.3.4
-RELEASE=1
+RELEASE=10
 CATEGORY="Lua"
 SUMMARY="Lua JSON parser/encoder extension"
 DESCRIPTION="\
